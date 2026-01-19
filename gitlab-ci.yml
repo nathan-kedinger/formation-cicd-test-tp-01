@@ -1,0 +1,30 @@
+image: maven:3.8.7-eclipse-temurin-17
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository
+
+stages:
+  - unit-test
+  - quality
+  - integration-test
+
+unit-tests:
+  stage: unit-test
+  script:
+    - mvn test -Dtest=!PricingIntegrationTest -f order-service/pom.xml
+
+quality:
+  stage: quality
+  needs: ["unit-tests"]
+  script:
+    - mvn verify -DskipTests -f order-service/pom.xml
+
+integration-tests:
+  stage: integration-test
+  needs: ["quality"]
+  script:
+    - mvn test -Dtest=PricingIntegrationTest -f order-service/pom.xml

@@ -11,4 +11,32 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run Unit Tests
+        # Exécute tous les tests SAUF le test d'intégration
+        run: mvn test -Dtest=!PricingIntegrationTest -f order-service/pom.xml
+
+  integration-tests:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run Integration Tests
+        # Exécute UNIQUEMENT le test d'intégration
+        run: mvn test -Dtest=PricingIntegrationTest -f order-service/pom.xml
